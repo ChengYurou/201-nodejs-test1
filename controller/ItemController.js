@@ -17,7 +17,7 @@ class ItemController {
       if (err) {
         return next(err);
       }
-      res.status(constant.httpCode.OK).send(result);
+      return res.status(constant.httpCode.OK).send(result);
     })
   };
 
@@ -40,7 +40,7 @@ class ItemController {
       if (err) {
         return next(err);
       }
-      res.status(constant.httpCode.CREATED).send({uri: `items/${doc._id}`});
+      return res.status(constant.httpCode.CREATED).send({uri: `items/${doc._id}`});
     })
   }
 

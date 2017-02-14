@@ -7,7 +7,7 @@ class CategoryController {
   getAll(req, res, next) {
     async.series({
       categories: (cb) => {
-        Category.find({},cb);
+        Category.find({}, cb);
       },
       totalCount: (cb) => {
         Category.count(cb);
@@ -16,12 +16,12 @@ class CategoryController {
       if (err) {
         return next(err);
       }
-      res.status(constant.httpCode.OK).send(result);
+      return res.status(constant.httpCode.OK).send(result);
     })
   };
 
   getOne(req, res, next) {
-    Category.findById(req.params.categoryId,(err,doc) => {
+    Category.findById(req.params.categoryId, (err, doc) => {
       if (err) {
         return next(err);
       }
@@ -37,7 +37,7 @@ class CategoryController {
       if (err) {
         return next(err);
       }
-      res.status(constant.httpCode.CREATED).send({uri: `categories/${doc._id}`});
+      return res.status(constant.httpCode.CREATED).send({uri: `categories/${doc._id}`});
     })
   }
 
@@ -45,25 +45,20 @@ class CategoryController {
     const categoryId = req.params.categoryId;
     async.waterfall([
       (done) => {
-        Item.findOne({categoryId},done)
+        Item.findOne({categoryId}, done)
       },
-      (data,done) => {
-        if(data) {
-          done(true,null);
-        }else {
-          Category.findByIdAndRemove(categoryId,(err,doc) => {
-            if(!doc) {
-              done(false,null);
-            }
-            done(err,doc);
-          })
+      (data, done) => {
+        if (data) {
+          return done(true, null);
         }
+        Category.findByIdAndRemove(categoryId, done)
+
       }
-    ],(err) => {
-      if(err === true) {
+    ], (err, doc) => {
+      if (err === true) {
         return res.sendStatus(constant.httpCode.BAD_REQUEST);
       }
-      if(err === false) {
+      if (!doc) {
         return res.sendStatus(constant.httpCode.NOT_FOUND);
       }
       return res.sendStatus(constant.httpCode.NO_CONTENT);

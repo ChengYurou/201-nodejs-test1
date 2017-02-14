@@ -32,7 +32,7 @@ class CartController {
       if (err) {
         return next(err);
       }
-      res.status(constant.httpCode.OK).send(result);
+      return res.status(constant.httpCode.OK).send(result);
     })
   };
 
@@ -55,7 +55,7 @@ class CartController {
       if (err) {
         return next(err);
       }
-      res.status(constant.httpCode.CREATED).send({uri: `carts/${doc._id}`});
+      return res.status(constant.httpCode.CREATED).send({uri: `carts/${doc._id}`});
     })
   }
 
