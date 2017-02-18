@@ -6,11 +6,11 @@ const constant = require('../config/constant');
 class CategoryController {
   getAll(req, res, next) {
     async.series({
-      categories: (cb) => {
-        Category.find({}, cb);
+      categories: (done) => {
+        Category.find({}, done);
       },
-      totalCount: (cb) => {
-        Category.count(cb);
+      totalCount: (done) => {
+        Category.count(done);
       }
     }, (err, result) => {
       if (err) {
@@ -47,16 +47,19 @@ class CategoryController {
       (done) => {
         Item.findOne({categoryId}, done)
       },
-      (data, done) => {
-        if (data) {
-          return done(true, null);
+      (docs, done) => {
+        if (docs) {
+          let error = {status: constant.httpCode.BAD_REQUEST};
+          return done(error, null);
         }
         Category.findByIdAndRemove(categoryId, done)
-
       }
     ], (err, doc) => {
-      if (err === true) {
+      if (err && err.status) {
         return res.sendStatus(constant.httpCode.BAD_REQUEST);
+      }
+      if (err && !err.status) {
+        return next(err);
       }
       if (!doc) {
         return res.sendStatus(constant.httpCode.NOT_FOUND);

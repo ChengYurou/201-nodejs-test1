@@ -5,13 +5,13 @@ const constant = require('../config/constant');
 class ItemController {
   getAll(req, res, next) {
     async.series({
-      items: (cb) => {
+      items: (done) => {
         Item.find({})
             .populate('categoryId')
-            .exec(cb)
+            .exec(done)
       },
-      totalCount: (cb) => {
-        Item.count(cb);
+      totalCount: (done) => {
+        Item.count(done);
       }
     }, (err, result) => {
       if (err) {

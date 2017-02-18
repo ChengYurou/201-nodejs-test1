@@ -1,7 +1,8 @@
 const refreshMongo = require('./tool/mongoTool');
 const mongoose = require('mongoose');
+const config = require('config')
 
-mongoose.connect('mongodb://localhost/supermarket', (err) => {
+mongoose.connect(config.get('mongoUri'), (err) => {
   if (err) {
     console.log('connect error');
   } else {

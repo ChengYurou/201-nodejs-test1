@@ -2,31 +2,34 @@ const Cart = require('../model/cart');
 const async = require('async');
 const constant = require('../config/constant');
 
-const loadItem = (items) => {
+function format(items) {
   return items.map(({count, item}) => {
     return {uri: `items/${item}`, count};
   })
-};
+}
 
 class CartController {
   getAll(req, res, next) {
     async.series({
-      carts: (cb) => {
+      carts: (done) => {
         Cart.find({}, (err, doc) => {
           if (err) {
-            return next(err);
+            return done(err, null);
           }
-          let carts = doc.map(cart => {
-            let data = cart.toJSON();
-            data.items = loadItem(data.items);
-            return data;
+          let carts = doc.forEach(cart => {
+            // let data = cart.toJSON();
+            cart.items = cart.items.map(({count, item}) => {
+              return {uri: `items/${item.toJSON()}`, count};
+            });
+            // data.items = format(data.items);
+            // return data;
           })
-          cb(null, carts);
+          done(null, carts);
         })
 
       },
-      totalCount: (cb) => {
-        Cart.count(cb);
+      totalCount: (done) => {
+        Cart.count(done);
       }
     }, (err, result) => {
       if (err) {
@@ -45,7 +48,9 @@ class CartController {
         return res.sendStatus(constant.httpCode.NOT_FOUND);
       }
       let data = doc.toJSON();
-      data.items = loadItem(data.items);
+      data.items = data.items.map(({count, item}) => {
+        return {uri: `items/${item}`, count};
+      });
       return res.status(constant.httpCode.OK).send(data);
     })
   }
